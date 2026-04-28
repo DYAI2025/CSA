@@ -35,8 +35,14 @@ const server = http.createServer((req, res) => {
     return send(res, 400, { 'Content-Type': 'text/plain; charset=utf-8' }, 'Bad Request');
   }
 
-  const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-  let pathname = decodeURIComponent(parsedUrl.pathname);
+  let pathname;
+  try {
+    const host = req.headers.host || 'localhost';
+    const parsedUrl = new URL(req.url, `http://${host}`);
+    pathname = decodeURIComponent(parsedUrl.pathname);
+  } catch {
+    return send(res, 400, { 'Content-Type': 'text/plain; charset=utf-8' }, 'Bad Request');
+  }
 
   if (pathname === '/health') {
     return send(res, 200, { 'Content-Type': 'application/json; charset=utf-8' }, JSON.stringify({ status: 'ok' }));
